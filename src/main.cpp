@@ -1,3 +1,13 @@
+/*
+ * Bitcoin Price Fetcher with SFML
+ * Fetches Bitcoin price from CoinGecko API and displays it in an SFML window.
+ * Uses httplib for HTTP requests, nlohmann::json for JSON parsing, and SFML for graphics.
+ *
+ * Dev with passion by: PHForge
+ * License: MIT License
+ * Version: 0.0.1
+ */
+
 #include <httplib.h> // For HTTP requests
 #include <json.hpp> // For JSON manipulation
 #include <iostream>
