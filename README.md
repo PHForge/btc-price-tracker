@@ -90,8 +90,6 @@ btc-price-tracker/
 ├── LICENSE                     // MIT License file
 ├── CMakeLists.txt              // CMake build configuration for cross-platform builds
 └── README.md                   // Project documentation
-
-
 ```
 
 <br>
