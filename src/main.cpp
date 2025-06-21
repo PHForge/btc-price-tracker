@@ -10,11 +10,11 @@
 
 #include <httplib.h> // For HTTP requests
 #include <json.hpp> // For JSON manipulation
-#include <iostream>
-#include <string>
-#include <thread>
-#include <chrono>
-#include <iomanip>
+#include <iostream> // For console output
+#include <string> // For string manipulation
+#include <thread> // For sleep functionality  
+#include <chrono> // For time manipulation
+#include <iomanip> // For formatted output
 
 #ifdef _WIN32
 #include <windows.h> // For UTF-8 encoding
@@ -51,7 +51,7 @@ double getBitcoinPrice() {
         httplib::Client cli("https://api.coingecko.com");
         auto res = cli.Get("/api/v3/simple/price?ids=bitcoin&vs_currencies=usd");
         if (!res || res->status != 200) {
-            std::cerr << "Erreur HTTP : " << (res ? res->status : -1) << std::endl;
+            std::cerr << "HTTP error: " << (res ? res->status : -1) << std::endl;
             return -1.0;
         }
         json j = json::parse(res->body);
@@ -123,6 +123,10 @@ int main() {
         // Message indicating the next update
         std::cout << "\033[1;33m"; // Yellow for the message
         std::cout << "Next update in 60 seconds...\033[0m\n";
+        std::cout << "\n";
+        std::cout << "\n";
+        std::cout << "                        Thanks for using this tool\n";
+        std::cout << "                                        By \033[1;34mPHForge\033[0m\n";
         
         std::this_thread::sleep_for(std::chrono::seconds(60));
     }
