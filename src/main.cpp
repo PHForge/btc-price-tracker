@@ -54,17 +54,26 @@ std::string getCurrentTimeFormatted() {
 // Function to fetch the current Bitcoin price from CoinGecko API
 double getBitcoinPrice() {
     try {
-        httplib::Client cli("https://api.coingecko.com");
+        // Create a static HTTP client instance to avoid re-initialization
+        static httplib::Client cli("https://api.coingecko.com");
+        static bool initialized = false;
+        if (!initialized) {
+            cli.set_connection_timeout(5); // Connection timeout: 5 seconds
+            cli.set_read_timeout(5);       // Read timeout: 5 seconds
+            initialized = true;
+        }
+        // Make a GET request to the CoinGecko API for Bitcoin price
         auto res = cli.Get("/api/v3/simple/price?ids=bitcoin&vs_currencies=usd");
+        // Check if the response is valid and status code is 200 (OK)
         if (!res || res->status != 200) {
-            std::cerr << "HTTP error: " << (res ? res->status : -1) << std::endl;
+            std::cerr << COLOR_RED << "HTTP error: " << (res ? res->status : -1) << COLOR_RESET << std::endl;
             return -1.0;
         }
-        json j = json::parse(res->body);
-        return j["bitcoin"]["usd"].get<double>();
+        json j = json::parse(res->body); // Parse the JSON response
+        return j["bitcoin"]["usd"].get<double>(); // Extract the Bitcoin price in USD
     }
     catch (const std::exception& e) {
-        std::cerr << "Exception : " << e.what() << std::endl;
+        std::cerr << COLOR_RED << "Exception: " << e.what() << COLOR_RESET << std::endl;
         return -1.0;
     }
 }
