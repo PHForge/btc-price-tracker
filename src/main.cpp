@@ -5,7 +5,7 @@
  *
  * Dev with passion by: PHForge
  * License: MIT License
- * Version: 0.0.3
+ * Version: 0.0.4
  */
 
 #include <httplib.h> // For HTTP requests
