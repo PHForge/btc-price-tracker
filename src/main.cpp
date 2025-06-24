@@ -5,7 +5,7 @@
  *
  * Dev with passion by: PHForge
  * License: MIT License
- * Version: 0.0.4
+ * Version: 0.0.5
  */
 
 #include <httplib.h> // For HTTP requests
@@ -26,7 +26,8 @@ const std::string COLOR_GREEN = "\033[1;32m";
 const std::string COLOR_CYAN = "\033[1;36m";
 const std::string COLOR_RED = "\033[1;31m";
 const std::string COLOR_YELLOW = "\033[1;33m";
-const std::string COLOR_RESET = "\033[0m";
+const std::string COLOR_RESET = "\033[0m"; // Reset color 
+const std::string CLEAR_SCREEN = "\033[2J\033[H"; // Clear screen 
 
 using json = nlohmann::json;
 
@@ -100,12 +101,8 @@ int main() {
 
         while (true) {
         
-        // Clear the console for a fresh display
-        #ifdef _WIN32
-                system("cls");
-        #else
-                system("clear");
-        #endif
+        // Clear the console for a fresh display, using flush to ensure it works immediately
+        std::cout << CLEAR_SCREEN << std::flush;
 
         // Print the title and border
         printBorder("Bitcoin Price Tracker");

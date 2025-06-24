@@ -2,7 +2,7 @@
 
 A real-time Bitcoin (BTC) price tracker, fetching live USD prices from the CoinGecko API via HTTPS. This project uses modern C++ programming, HTTP client integration, JSON parsing, and cross-platform build configuration using CMake.
 
-![Language](https://img.shields.io/badge/language-C++-blue.svg) ![License](https://img.shields.io/badge/license-MIT-darkblue.svg) ![SoftVersion](https://img.shields.io/badge/SoftVersion-0.0.4-black)
+![Language](https://img.shields.io/badge/language-C++-blue.svg) ![License](https://img.shields.io/badge/license-MIT-darkblue.svg) ![SoftVersion](https://img.shields.io/badge/SoftVersion-0.0.5-black)
 
 *Example output: `Bitcoin price: $106000.00 - 06/16/2025 at 2:13 p.m.`*
 
