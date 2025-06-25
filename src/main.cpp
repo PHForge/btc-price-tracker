@@ -16,7 +16,7 @@
 #include <chrono> // For time manipulation
 #include <iomanip> // For formatted output
 
-#ifdef _WIN32
+#ifdef _WIN32 // For Windows-specific functionality
 #include <windows.h> // For UTF-8 encoding
 #endif
 
@@ -27,8 +27,9 @@ const std::string COLOR_CYAN = "\033[1;36m";
 const std::string COLOR_RED = "\033[1;31m";
 const std::string COLOR_YELLOW = "\033[1;33m";
 const std::string COLOR_RESET = "\033[0m"; // Reset color 
-const std::string CLEAR_SCREEN = "\033[2J\033[H"; // Clear screen 
+const std::string CLEAR_SCREEN = "\033[2J\033[H"; // Clear screen and move cursor to home position
 
+// Define the JSON namespace for convenience
 using json = nlohmann::json;
 
 // Function to enable ANSI escape codes for colored output on Windows
@@ -45,10 +46,10 @@ void enableANSICodes() {
 // Function to get the current formatted time
 // Returns a string with the current time formatted as "MM/DD/YYYY HH:MM AM/PM"
 std::string getCurrentTimeFormatted() {
-    auto now = std::chrono::system_clock::now();
-    auto time = std::chrono::system_clock::to_time_t(now);
-    std::ostringstream oss;
-    oss << std::put_time(std::localtime(&time), "%m/%d/%Y %I:%M %p");
+    auto now = std::chrono::system_clock::now(); // Get current time
+    auto time = std::chrono::system_clock::to_time_t(now); // Convert to time_t
+    std::ostringstream oss; // Create an output string stream
+    oss << std::put_time(std::localtime(&time), "%m/%d/%Y %I:%M %p"); // Format the time
     return oss.str();
 }
 
