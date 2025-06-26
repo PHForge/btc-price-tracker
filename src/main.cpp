@@ -5,7 +5,7 @@
  *
  * Dev with passion by: PHForge
  * License: MIT License
- * Version: 0.0.5
+ * Version: 0.0.6
  */
 
 #include <httplib.h> // For HTTP requests
@@ -66,16 +66,36 @@ double getBitcoinPrice() {
         }
         // Make a GET request to the CoinGecko API for Bitcoin price
         auto res = cli.Get("/api/v3/simple/price?ids=bitcoin&vs_currencies=usd");
+        if (!res) {
+            std::cerr << COLOR_RED << "Error: Failed to connect to CoinGecko API" << COLOR_RESET << std::endl;
+            return -1.0;
+        }
         // Check if the response is valid and status code is 200 (OK)
-        if (!res || res->status != 200) {
-            std::cerr << COLOR_RED << "HTTP error: " << (res ? res->status : -1) << COLOR_RESET << std::endl;
+        if (res->status != 200) {
+            std::cerr << COLOR_RED << "HTTP error: Status code " << res->status;
+            if (res->status == 429) { 
+                std::cerr << " (Rate limit exceeded)";
+            } else if (res->status == 404) { 
+                std::cerr << " (Resource not found)";
+            } else if (res->status >= 500) {
+                std::cerr << " (Server error)";
+            }
+            std::cerr << COLOR_RESET << std::endl;
             return -1.0;
         }
         json j = json::parse(res->body); // Parse the JSON response
-        return j["bitcoin"]["usd"].get<double>(); // Extract the Bitcoin price in USD
+        if (!j.contains("bitcoin") || !j["bitcoin"].contains("usd")) {
+            std::cerr << COLOR_RED << "Error: Invalid JSON structure (missing 'bitcoin' or 'usd' key)" << COLOR_RESET << std::endl;
+            return -1.0;
+        }
+        return j["bitcoin"]["usd"].get<double>();
+    }
+    catch (const nlohmann::json::parse_error& e) {
+        std::cerr << COLOR_RED << "Error: Failed to parse JSON response: " << e.what() << COLOR_RESET << std::endl;
+        return -1.0;
     }
     catch (const std::exception& e) {
-        std::cerr << COLOR_RED << "Exception: " << e.what() << COLOR_RESET << std::endl;
+        std::cerr << COLOR_RED << "Unexpected error: " << e.what() << COLOR_RESET << std::endl;
         return -1.0;
     }
 }
