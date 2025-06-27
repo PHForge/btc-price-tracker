@@ -105,9 +105,7 @@ double getBitcoinPrice() {
 void printBorder(const std::string& title, int width = 50) {
     std::cout << COLOR_LIGHT_BLUE; // Light blue for the border
     std::cout << std::string(width, '=') << "\n";
-    std::cout << std::string((width - title.length() - 2) / 2, ' ') 
-              << " " << title << " " 
-              << std::string((width - title.length() - 2) / 2, ' ') << "\n";
+    std::cout << std::string((width - title.length() - 2) / 2, ' ') << " " << title << " " << std::string((width - title.length() - 2) / 2, ' ') << "\n";
     std::cout << std::string(width, '=') << COLOR_RESET << "\n";
 }
 
@@ -131,19 +129,13 @@ int main() {
         double price = getBitcoinPrice(); // Fetch the current Bitcoin price
         if (price >= 0.0) {
             std::cout << COLOR_GREEN; // Green for the price
-            std::cout << std::setw(25) << std::left << "Bitcoin Price:" 
-                      << "$" << std::fixed << std::setprecision(2) << price << "\n";
-            std::cout << COLOR_CYAN; // Cyan for the time
-            std::cout << std::setw(25) << std::left << "Last Updated:" 
-                      << getCurrentTimeFormatted() << COLOR_RESET << "\n";
+            std::cout << std::setw(25) << std::left << "Bitcoin Price:" << "$" << std::fixed << std::setprecision(2) << price << "\n";
         } else {
             std::cout << COLOR_RED; // Red for the error
-            std::cout << std::setw(25) << std::left << "Status:" 
-                      << "Unable to retrieve price." << "\n";
-            std::cout << COLOR_CYAN; // Cyan for the time
-            std::cout << std::setw(25) << std::left << "Last Updated:" 
-                      << getCurrentTimeFormatted() << COLOR_RESET << "\n";
+            std::cout << std::setw(25) << std::left << "Status:" << "Unable to retrieve price." << "\n";
         }
+        std::cout << COLOR_CYAN; // Cyan for the time
+        std::cout << std::setw(25) << std::left << "Last Updated:" << getCurrentTimeFormatted() << COLOR_RESET << "\n";
 
         printBorder("", 50); // Print a decorative border at the bottom
 
