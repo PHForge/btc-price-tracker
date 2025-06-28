@@ -56,39 +56,67 @@ std::string getCurrentTimeFormatted() {
 // Function to fetch the current Bitcoin price from CoinGecko API
 double getBitcoinPrice() {
     try {
-        // Create a static HTTP client instance to avoid re-initialization
-        static httplib::Client cli("https://api.coingecko.com");
-        static bool initialized = false;
-        if (!initialized) {
-            cli.set_connection_timeout(5); // Connection timeout: 5 seconds
-            cli.set_read_timeout(5);       // Read timeout: 5 seconds
+        static httplib::Client cli("https://api.coingecko.com"); // Create a client for CoinGecko API
+        static bool initialized = false; // Static variable to ensure initialization only once
+        // Initialize connection and read timeouts only once
+        // This prevents repeated initialization on each function call
+        if (!initialized) { 
+            cli.set_connection_timeout(5);
+            cli.set_read_timeout(5);
             initialized = true;
         }
-        // Make a GET request to the CoinGecko API for Bitcoin price
-        auto res = cli.Get("/api/v3/simple/price?ids=bitcoin&vs_currencies=usd");
-        if (!res) {
-            std::cerr << COLOR_RED << "Error: Failed to connect to CoinGecko API" << COLOR_RESET << std::endl;
-            return -1.0;
-        }
-        // Check if the response is valid and status code is 200 (OK)
-        if (res->status != 200) {
-            std::cerr << COLOR_RED << "HTTP error: Status code " << res->status;
-            if (res->status == 429) { 
-                std::cerr << " (Rate limit exceeded)";
-            } else if (res->status == 404) { 
-                std::cerr << " (Resource not found)";
-            } else if (res->status >= 500) {
-                std::cerr << " (Server error)";
+        // Attempt to fetch the Bitcoin price with retries
+        // This loop will retry up to 3 times in case of connection issues or errors
+        const int maxRetries = 3; // Maximum number of retries
+        for (int attempt = 1; attempt <= maxRetries; ++attempt) {
+            auto res = cli.Get("/api/v3/simple/price?ids=bitcoin&vs_currencies=usd"); 
+            // Check if the response is null (indicating a connection failure)
+            if (!res) {
+                std::cerr << COLOR_RED << "Error: Failed to connect to CoinGecko API (Attempt " << attempt << "/" << maxRetries << ")" << COLOR_RESET << std::endl;
+                if (attempt < maxRetries) {
+                    std::cerr << COLOR_YELLOW << "Retrying in 5 seconds..." << COLOR_RESET << std::endl;
+                    std::this_thread::sleep_for(std::chrono::seconds(5));
+                    continue;
+                }
+                return -1.0;
             }
-            std::cerr << COLOR_RESET << std::endl;
-            return -1.0;
+            // Check if the response status is not OK (200)
+            if (res->status != 200) {
+                std::cerr << COLOR_RED << "HTTP error: Status code " << res->status << " (Attempt " << attempt << "/" << maxRetries << ")";
+                if (res->status == 429) {
+                    std::cerr << " (Rate limit exceeded)";
+                    if (attempt < maxRetries) {
+                        std::cerr << COLOR_YELLOW << "Retrying in 10 seconds..." << COLOR_RESET << std::endl;
+                        std::this_thread::sleep_for(std::chrono::seconds(10));
+                        continue;
+                    }
+                // Handle specific HTTP status codes
+                } else if (res->status == 400) {
+                    std::cerr << " (Bad request)";
+                } else if (res->status == 401) {
+                    std::cerr << " (Unauthorized access)";
+                } else if (res->status == 404) { 
+                    std::cerr << " (Resource not found)";
+                } else if (res->status >= 500) {
+                    std::cerr << " (Server error)";
+                    if (attempt < maxRetries) {
+                        std::cerr << COLOR_YELLOW << "Retrying in 5 seconds..." << COLOR_RESET << std::endl;
+                        std::this_thread::sleep_for(std::chrono::seconds(5));
+                        continue;
+                    }
+                }
+                // If we reach here, it means the request failed after all retries
+                std::cerr << COLOR_RESET << std::endl;
+                return -1.0;
+            }
+            // Success: parse JSON and return price
+            json j = json::parse(res->body);
+            if (!j.contains("bitcoin") || !j["bitcoin"].contains("usd")) {
+                std::cerr << COLOR_RED << "Error: Invalid JSON structure (missing 'bitcoin' or 'usd' key)" << COLOR_RESET << std::endl;
+                return -1.0;
+            }
+            return j["bitcoin"]["usd"].get<double>(); // Extract the Bitcoin price in USD
         }
-        json j = json::parse(res->body); // Parse the JSON response
-        if (!j.contains("bitcoin") || !j["bitcoin"].contains("usd")) {
-            std::cerr << COLOR_RED << "Error: Invalid JSON structure (missing 'bitcoin' or 'usd' key)" << COLOR_RESET << std::endl;
-            return -1.0;
-        }
-        return j["bitcoin"]["usd"].get<double>();
     }
     catch (const nlohmann::json::parse_error& e) {
         std::cerr << COLOR_RED << "Error: Failed to parse JSON response: " << e.what() << COLOR_RESET << std::endl;
@@ -98,6 +126,7 @@ double getBitcoinPrice() {
         std::cerr << COLOR_RED << "Unexpected error: " << e.what() << COLOR_RESET << std::endl;
         return -1.0;
     }
+    return -1.0; // Fallback in case of unexpected loop exit
 }
 
 // Function to display a decorative border
