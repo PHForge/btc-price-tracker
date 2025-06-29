@@ -138,6 +138,11 @@ void printBorder(const std::string& title, int width = 50) {
     std::cout << std::string(width, '=') << COLOR_RESET << "\n";
 }
 
+// Function to print a formatted line with label, value, and color
+void printFormattedLine(const std::string& label, const std::string& value, const std::string& color) {
+    std::cout << color << std::setw(25) << std::left << label << value << COLOR_RESET << "\n";
+}
+
 int main() {
         // Set console to UTF-8 encoding on Windows
         #ifdef _WIN32
@@ -155,16 +160,16 @@ int main() {
         // Print the title and border
         printBorder("Bitcoin Price Tracker");
         
-        double price = getBitcoinPrice(); // Fetch the current Bitcoin price
-        if (price >= 0.0) {
-            std::cout << COLOR_GREEN; // Green for the price
-            std::cout << std::setw(25) << std::left << "Bitcoin Price:" << "$" << std::fixed << std::setprecision(2) << price << "\n";
+        // Print the current time
+        double price = getBitcoinPrice();
+        if (price >= 0.0) { // Check if the price is valid
+            std::ostringstream oss; // Create an output string stream for formatted output
+            oss << "$" << std::fixed << std::setprecision(2) << price; // Format the price to 2 decimal places
+            printFormattedLine("Bitcoin Price:", oss.str(), COLOR_GREEN); // Print the price in green
         } else {
-            std::cout << COLOR_RED; // Red for the error
-            std::cout << std::setw(25) << std::left << "Status:" << "Unable to retrieve price." << "\n";
+            printFormattedLine("Status:", "Unable to retrieve price.", COLOR_RED); // Print error message in red
         }
-        std::cout << COLOR_CYAN; // Cyan for the time
-        std::cout << std::setw(25) << std::left << "Last Updated:" << getCurrentTimeFormatted() << COLOR_RESET << "\n";
+        printFormattedLine("Last Updated:", getCurrentTimeFormatted(), COLOR_CYAN); // Print the last updated time in cyan
 
         printBorder("", 50); // Print a decorative border at the bottom
 
