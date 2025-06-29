@@ -20,14 +20,17 @@
 #include <windows.h> // For UTF-8 encoding
 #endif
 
-// Define ANSI color codes for console output
-const std::string COLOR_LIGHT_BLUE = "\033[1;34m";
-const std::string COLOR_GREEN = "\033[1;32m";
-const std::string COLOR_CYAN = "\033[1;36m";
-const std::string COLOR_RED = "\033[1;31m";
-const std::string COLOR_YELLOW = "\033[1;33m";
-const std::string COLOR_RESET = "\033[0m"; // Reset color 
-const std::string CLEAR_SCREEN = "\033[2J\033[H"; // Clear screen and move cursor to home position
+// Define color constants for console output
+// Define ANSI color codes in a namespace for better organization
+namespace Colors {
+    const std::string LIGHT_BLUE = "\033[1;34m";
+    const std::string GREEN = "\033[1;32m";
+    const std::string CYAN = "\033[1;36m";
+    const std::string RED = "\033[1;31m";
+    const std::string YELLOW = "\033[1;33m";
+    const std::string RESET = "\033[0m"; // Reset color to default
+    const std::string CLEAR_SCREEN = "\033[2J\033[H"; // ANSI escape code to clear the console screen
+}
 
 // Define the JSON namespace for convenience
 using json = nlohmann::json;
@@ -84,9 +87,9 @@ double getBitcoinPrice() {
             auto res = cli.Get("/api/v3/simple/price?ids=bitcoin&vs_currencies=usd"); 
             // Check if the response is null (indicating a connection failure)
             if (!res) {
-                std::cerr << COLOR_RED << "Error: Failed to connect to CoinGecko API (Attempt " << attempt << "/" << maxRetries << ")" << COLOR_RESET << std::endl;
+                std::cerr << Colors::RED << "Error: Failed to connect to CoinGecko API (Attempt " << attempt << "/" << maxRetries << ")" << Colors::RESET << std::endl;
                 if (attempt < maxRetries) {
-                    std::cerr << COLOR_YELLOW << "Retrying in 5 seconds..." << COLOR_RESET << std::endl;
+                    std::cerr << Colors::YELLOW << "Retrying in 5 seconds..." << Colors::RESET << std::endl;
                     std::this_thread::sleep_for(std::chrono::seconds(5));
                     continue;
                 }
@@ -94,11 +97,11 @@ double getBitcoinPrice() {
             }
             // Check if the response status is not OK (200)
             if (res->status != 200) {
-                std::cerr << COLOR_RED << "HTTP error: Status code " << res->status << " (Attempt " << attempt << "/" << maxRetries << ")";
+                std::cerr << Colors::RED << "HTTP error: Status code " << res->status << " (Attempt " << attempt << "/" << maxRetries << ")" << Colors::RESET;
                 if (res->status == 429) {
                     std::cerr << " (Rate limit exceeded)";
                     if (attempt < maxRetries) {
-                        std::cerr << COLOR_YELLOW << "Retrying in 10 seconds..." << COLOR_RESET << std::endl;
+                        std::cerr << Colors::YELLOW << "Retrying in 10 seconds..." << Colors::RESET << std::endl;
                         std::this_thread::sleep_for(std::chrono::seconds(10));
                         continue;
                     }
@@ -112,30 +115,30 @@ double getBitcoinPrice() {
                 } else if (res->status >= 500) {
                     std::cerr << " (Server error)";
                     if (attempt < maxRetries) {
-                        std::cerr << COLOR_YELLOW << "Retrying in 5 seconds..." << COLOR_RESET << std::endl;
+                        std::cerr << Colors::YELLOW << "Retrying in 5 seconds..." << Colors::RESET << std::endl;
                         std::this_thread::sleep_for(std::chrono::seconds(5));
                         continue;
                     }
                 }
                 // If we reach here, it means the request failed after all retries
-                std::cerr << COLOR_RESET << std::endl;
+                std::cerr << Colors::RESET << std::endl;
                 return -1.0;
             }
             // Success: parse JSON and return price
             json j = json::parse(res->body);
             if (!j.contains("bitcoin") || !j["bitcoin"].contains("usd")) {
-                std::cerr << COLOR_RED << "Error: Invalid JSON structure (missing 'bitcoin' or 'usd' key)" << COLOR_RESET << std::endl;
+                std::cerr << Colors::RED << "Error: Invalid JSON structure (missing 'bitcoin' or 'usd' key)" << Colors::RESET << std::endl;
                 return -1.0;
             }
             return j["bitcoin"]["usd"].get<double>(); // Extract the Bitcoin price in USD
         }
     }
     catch (const nlohmann::json::parse_error& e) {
-        std::cerr << COLOR_RED << "Error: Failed to parse JSON response: " << e.what() << COLOR_RESET << std::endl;
+        std::cerr << Colors::RED << "Error: Failed to parse JSON response: " << e.what() << Colors::RESET << std::endl;
         return -1.0;
     }
     catch (const std::exception& e) {
-        std::cerr << COLOR_RED << "Unexpected error: " << e.what() << COLOR_RESET << std::endl;
+        std::cerr << Colors::RED << "Unexpected error: " << e.what() << Colors::RESET << std::endl;
         return -1.0;
     }
     return -1.0; // Fallback in case of unexpected loop exit
@@ -144,15 +147,15 @@ double getBitcoinPrice() {
 // Function to display a decorative border
 // The width of the border can be specified, default is 50 characters
 void printBorder(const std::string& title, int width = 50) {
-    std::cout << COLOR_LIGHT_BLUE; // Light blue for the border
+    std::cout << Colors::LIGHT_BLUE; // Light blue for the border
     std::cout << std::string(width, '=') << "\n";
     std::cout << std::string((width - title.length() - 2) / 2, ' ') << " " << title << " " << std::string((width - title.length() - 2) / 2, ' ') << "\n";
-    std::cout << std::string(width, '=') << COLOR_RESET << "\n";
+    std::cout << std::string(width, '=') << Colors::RESET << "\n";
 }
 
 // Function to print a formatted line with label, value, and color
 void printFormattedLine(const std::string& label, const std::string& value, const std::string& color) {
-    std::cout << color << std::setw(25) << std::left << label << value << COLOR_RESET << "\n";
+    std::cout << color << std::setw(25) << std::left << label << value << Colors::RESET << "\n";
 }
 
 int main() {
@@ -167,7 +170,7 @@ int main() {
         while (true) {
         
         // Clear the console for a fresh display, using flush to ensure it works immediately
-        std::cout << CLEAR_SCREEN << std::flush;
+        std::cout << Colors::CLEAR_SCREEN << std::flush;
 
         // Print the title and border
         printBorder("Bitcoin Price Tracker");
@@ -177,21 +180,21 @@ int main() {
         if (price >= 0.0) { // Check if the price is valid
             std::ostringstream oss; // Create an output string stream for formatted output
             oss << "$" << std::fixed << std::setprecision(2) << price; // Format the price to 2 decimal places
-            printFormattedLine("Bitcoin Price:", oss.str(), COLOR_GREEN); // Print the price in green
+            printFormattedLine("Bitcoin Price:", oss.str(), Colors::GREEN); // Print the price in green
         } else {
-            printFormattedLine("Status:", "Unable to retrieve price.", COLOR_RED); // Print error message in red
+            printFormattedLine("Status:", "Unable to retrieve price.", Colors::RED); // Print error message in red
         }
-        printFormattedLine("Last Updated:", getCurrentTimeFormatted(), COLOR_CYAN); // Print the last updated time in cyan
+        printFormattedLine("Last Updated:", getCurrentTimeFormatted(), Colors::CYAN); // Print the last updated time in cyan
 
         printBorder("", 50); // Print a decorative border at the bottom
 
         // Message indicating the next update and my signature
-        std::cout << COLOR_YELLOW << "Next update in 60 seconds..." << COLOR_RESET << "\n";
+        std::cout << Colors::YELLOW << "Next update in 60 seconds..." << Colors::RESET << "\n";
         std::cout << "\n";
         std::cout << "\n";
         std::cout << "                        Thanks for using this tool\n";
-        std::cout << "                                        By " << COLOR_LIGHT_BLUE << "PHForge" << COLOR_RESET << "\n";
-        
+        std::cout << "                                        By " << Colors::LIGHT_BLUE << "PHForge" << Colors::RESET << "\n";
+
         // Sleep for 60 seconds before the next update
         std::this_thread::sleep_for(std::chrono::seconds(60));
     }
