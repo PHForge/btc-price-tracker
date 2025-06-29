@@ -2,18 +2,38 @@
 
 A real-time Bitcoin (BTC) price tracker, fetching live USD prices from the CoinGecko API via HTTPS. This project uses modern C++ programming, HTTP client integration, JSON parsing, and cross-platform build configuration using CMake.
 
-![Language](https://img.shields.io/badge/language-C++-blue.svg) ![License](https://img.shields.io/badge/license-MIT-darkblue.svg) ![SoftVersion](https://img.shields.io/badge/SoftVersion-0.0.7-black)
+![Language](https://img.shields.io/badge/language-C++-blue.svg) ![License](https://img.shields.io/badge/license-MIT-darkblue.svg) ![SoftVersion](https://img.shields.io/badge/SoftVersion-0.0.8-black)
 
-*Example output: `Bitcoin price: $106000.00 - 06/16/2025 at 2:13 p.m.`*
+*Example output:*
+```cpp
+==================================================
+              Bitcoin Price Tracker
+==================================================
+Bitcoin Price:           $107643.00
+Last Updated:            06/29/2025 10:44 AM
+==================================================
+
+==================================================
+Next update in 60 seconds...
+
+
+                        Thanks for using this tool
+                                        By PHForge
+```
 
 <br>
 
 ## Features 📋
 - Fetches Bitcoin price in USD from CoinGecko API every 60 seconds.
 - Displays price with timestamp in US format (MM/DD/YYYY at HH:MM a.m./p.m.).
-- Handles HTTP errors and network exceptions gracefully.
-- Clears console for clean, real-time updates.
-- Supports UTF-8 encoding for proper character display.
+- Handles HTTP errors and network exceptions gracefully with detailed error messages (connection failures, rate limits, invalid JSON).
+- Implements retry logic for temporary API failures (connection issues, rate limits, server errors).
+- Uses a static HTTP client to optimize API requests and reduce connection overhead.
+- Clears console for clean, real-time updates using native ANSI codes.
+- Supports UTF-8 encoding for proper character display (colors and special characters).
+- Centralized formatted output for consistent display using a generic function.
+- Caches formatted timestamps to avoid redundant computations.
+- Organizes ANSI color codes in a namespace for better code structure.
 - Cross-platform build system using CMake, compatible with Windows, Linux, and macOS.
 
 <br>
@@ -31,7 +51,7 @@ The following components are required to build, run, or contribute to this proje
 | **IDE/Editor**     | VS Code (recommended) or any C++-compatible IDE/terminal | Configured with `tasks.json` and `launch.json` for compilation and debugging |
 | **Debugger**       | GDB (via MSYS2 UCRT64)                   | For debugging in VS Code                   |
 | **Version Control**| Git                                      | Required to clone the repository           |
-| **OS**             | Windows (tested with MSYS2 UCRT64); Linux/macOS (with adjustments) | CMake ensures cross-platform compatibility |
+| **OS**             | Windows (tested with MSYS2 UCRT64); Linux/macOS (with adjustments) | CMake ensures cross-platform compatibility; UTF-8 support required for ANSI colors |
 
 > [!TIP]
 > For an optimal setup on Windows, install [MSYS2 UCRT64](https://www.msys2.org/) and use the following command to install dependencies:
