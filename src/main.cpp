@@ -43,14 +43,26 @@ void enableANSICodes() {
 #endif
 }
 
-// Function to get the current formatted time
-// Returns a string with the current time formatted as "MM/DD/YYYY HH:MM AM/PM"
+// Function to get the current time formatted as "MM/DD/YYYY HH:MM AM/PM"
+// This function caches the formatted time to avoid repeated formatting within the same second
 std::string getCurrentTimeFormatted() {
-    auto now = std::chrono::system_clock::now(); // Get current time
-    auto time = std::chrono::system_clock::to_time_t(now); // Convert to time_t
-    std::ostringstream oss; // Create an output string stream
-    oss << std::put_time(std::localtime(&time), "%m/%d/%Y %I:%M %p"); // Format the time
-    return oss.str();
+    static std::string cachedTime; // Cached formatted time
+    static std::chrono::system_clock::time_point lastUpdate; // Last update timestamp
+
+    auto now = std::chrono::system_clock::now();
+    // Check if the current second is the same as the last update
+    auto secondsSinceLastUpdate = std::chrono::duration_cast<std::chrono::seconds>(now - lastUpdate).count();
+    if (secondsSinceLastUpdate < 1 && !cachedTime.empty()) {
+        return cachedTime; // Return cached result
+    }
+
+    // Update cache
+    auto time = std::chrono::system_clock::to_time_t(now);
+    std::ostringstream oss; 
+    oss << std::put_time(std::localtime(&time), "%m/%d/%Y %I:%M %p");
+    cachedTime = oss.str();
+    lastUpdate = now;
+    return cachedTime;
 }
 
 // Function to fetch the current Bitcoin price from CoinGecko API
