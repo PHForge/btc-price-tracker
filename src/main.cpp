@@ -115,6 +115,7 @@ double getBitcoinPrice() {
                 } else if (res->status >= 500) {
                     std::cerr << " (Server error)";
                     if (attempt < maxRetries) {
+                        // If it's a server error, wait longer before retrying
                         std::cerr << Colors::YELLOW << "Retrying in 5 seconds..." << Colors::RESET << std::endl;
                         std::this_thread::sleep_for(std::chrono::seconds(5));
                         continue;
