@@ -5,7 +5,7 @@
  *
  * Dev with passion by: PHForge
  * License: MIT License
- * Version: 0.0.8
+ * Version: 0.0.9
  */
 
 #include <httplib.h> // For HTTP requests
@@ -15,6 +15,9 @@
 #include <thread> // For sleep functionality  
 #include <chrono> // For time manipulation
 #include <iomanip> // For formatted output
+#include <csignal> // For signal handling
+#include <atomic>  // For thread-safe exit flag
+#include <limits> // For std::numeric_limits to clear input buffer
 
 #ifdef _WIN32 // For Windows-specific functionality
 #include <windows.h> // For UTF-8 encoding
@@ -159,6 +162,33 @@ void printFormattedLine(const std::string& label, const std::string& value, cons
     std::cout << color << std::setw(25) << std::left << label << value << Colors::RESET << "\n";
 }
 
+// Global flag to signal program exit
+// This flag is set to true when the user presses Ctrl+C
+std::atomic<bool> shouldExit(false);
+
+// Signal handler for Ctrl+C
+// This function sets the shouldExit flag to true when a signal is received
+void signalHandler(int signum) {
+    shouldExit = true;
+}
+
+// Function to listen for 'q' keypress in a separate thread
+// This function runs in a loop, checking for user input, if 'q' or 'Q' is pressed, it sets the shouldExit flag to true
+void listenForExitKey() {
+    char input;
+    while (!shouldExit) {
+        std::cin >> input;
+        if (input == 'q' || input == 'Q') {
+            shouldExit = true;
+            std::cin.clear(); // Clear any error flags
+            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n'); // Clear input buffer
+            break;
+        }
+        std::cin.clear();
+        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n'); // Clear buffer after any input
+    }
+}
+
 int main() {
         // Set console to UTF-8 encoding on Windows
         #ifdef _WIN32
@@ -168,36 +198,49 @@ int main() {
         // Enable ANSI escape codes for colored output
         enableANSICodes();
 
-        while (true) {
+        // Set up Ctrl+C signal handler
+        std::signal(SIGINT, signalHandler);
+
+        // Start thread to listen for 'q' keypress
+        std::thread exitThread(listenForExitKey);
+
+        while (!shouldExit) {
         
-        // Clear the console for a fresh display, using flush to ensure it works immediately
-        std::cout << Colors::CLEAR_SCREEN << std::flush;
+            // Clear the console for a fresh display, using flush to ensure it works immediately
+            std::cout << Colors::CLEAR_SCREEN << std::flush;
 
-        // Print the title and border
-        printBorder("Bitcoin Price Tracker");
-        
-        // Print the current time
-        double price = getBitcoinPrice();
-        if (price >= 0.0) { // Check if the price is valid
-            std::ostringstream oss; // Create an output string stream for formatted output
-            oss << "$" << std::fixed << std::setprecision(2) << price; // Format the price to 2 decimal places
-            printFormattedLine("Bitcoin Price:", oss.str(), Colors::GREEN); // Print the price in green
-        } else {
-            printFormattedLine("Status:", "Unable to retrieve price.", Colors::RED); // Print error message in red
-        }
-        printFormattedLine("Last Updated:", getCurrentTimeFormatted(), Colors::CYAN); // Print the last updated time in cyan
+            // Print the title and border
+            printBorder("Bitcoin Price Tracker");
+            
+            // Print the current time
+            double price = getBitcoinPrice();
+            if (price >= 0.0) { // Check if the price is valid
+                std::ostringstream oss; // Create an output string stream for formatted output
+                oss << "$" << std::fixed << std::setprecision(2) << price; // Format the price to 2 decimal places
+                printFormattedLine("Bitcoin Price:", oss.str(), Colors::GREEN); // Print the price in green
+            } else {
+                printFormattedLine("Status:", "Unable to retrieve price.", Colors::RED); // Print error message in red
+            }
+            printFormattedLine("Last Updated:", getCurrentTimeFormatted(), Colors::CYAN); // Print the last updated time in cyan
 
-        printBorder("", 50); // Print a decorative border at the bottom
+            printBorder("", 50); // Print a decorative border at the bottom
 
-        // Message indicating the next update and my signature
-        std::cout << Colors::YELLOW << "Next update in 60 seconds..." << Colors::RESET << "\n";
-        std::cout << "\n";
-        std::cout << "\n";
-        std::cout << "                        Thanks for using this tool\n";
-        std::cout << "                                        By " << Colors::LIGHT_BLUE << "PHForge" << Colors::RESET << "\n";
+            // Message indicating the next update and my signature
+            std::cout << Colors::YELLOW << "Next update in 60 seconds... \n\n(press 'q' then Enter or Ctrl+C to exit)" << Colors::RESET << "\n\n\n";
+            std::cout << "                        Thanks for using this tool\n";
+            std::cout << "                                        By " << Colors::LIGHT_BLUE << "PHForge" << Colors::RESET << "\n";
 
-        // Sleep for 60 seconds before the next update
-        std::this_thread::sleep_for(std::chrono::seconds(60));
+            // Sleep in smaller intervals to check for exit condition more frequently
+            for (int i = 0; i < 60 && !shouldExit; ++i) {
+                std::this_thread::sleep_for(std::chrono::seconds(1));
+            }
     }
+
+    // Clean up: stop the exit thread and display exit message
+    if (exitThread.joinable()) {
+        exitThread.join();
+    }
+    std::cout << Colors::CLEAR_SCREEN << std::flush;
+    std::cout << Colors::CYAN << "Exiting Bitcoin Price Tracker. Thank you for using this tool!" << Colors::RESET << "\n";
     return 0;
 }
