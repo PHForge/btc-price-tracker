@@ -189,6 +189,20 @@ void listenForExitKey() {
     }
 }
 
+// Function to print an ASCII progress bar with percentage and time remaining
+void printProgressBar(int current, int total, int width, int line, int column) {
+    std::cout << "\033[" << line << ";" << column << "H"; // Position cursor
+    std::cout << Colors::YELLOW << "\033[K"; // Clear line
+    int filled = static_cast<int>(static_cast<double>(current) / total * width);
+    std::cout << "[";
+    for (int i = 0; i < width; ++i) {
+        std::cout << (i < filled ? "█" : "-");
+    }
+    std::cout << "] " << std::fixed << std::setprecision(1) << (current * 100.0 / total) << "% ";
+    std::cout << "(" << (total - current) << "s remaining)" << Colors::RESET;
+    std::cout << std::flush; // Ensure immediate display
+}
+
 int main() {
         // Set console to UTF-8 encoding on Windows
         #ifdef _WIN32
@@ -230,9 +244,16 @@ int main() {
             std::cout << "                        Thanks for using this tool\n";
             std::cout << "                                        By " << Colors::LIGHT_BLUE << "PHForge" << Colors::RESET << "\n";
 
-            // Sleep in smaller intervals to check for exit condition more frequently
-            for (int i = 0; i < 60 && !shouldExit; ++i) {
+            // Update progress bar every second
+            const int waitTime = 60;
+            const int progressBarLine = 10; // Line where progress bar appears
+            const int progressBarColumn = 5; // Column where progress bar starts
+            for (int i = 0; i < waitTime && !shouldExit; ++i) {
+                printProgressBar(i, waitTime, 20, progressBarLine, progressBarColumn);
                 std::this_thread::sleep_for(std::chrono::seconds(1));
+            }
+            if (!shouldExit) {
+                printProgressBar(waitTime, waitTime, 20, progressBarLine, progressBarColumn); // Final update
             }
     }
 
