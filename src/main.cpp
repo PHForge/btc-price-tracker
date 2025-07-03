@@ -240,20 +240,23 @@ int main() {
             printBorder("", 50); // Print a decorative border at the bottom
 
             // Message indicating the next update and my signature
-            std::cout << Colors::YELLOW << "Next update in 60 seconds... \n\n(press 'q' then Enter or Ctrl+C to exit)" << Colors::RESET << "\n\n\n";
+            std::cout << Colors::YELLOW << "Next update in 60 seconds... \n\n" << Colors::RESET;
+            std::cout << "\n";
+            std::cout << "\n";
+            std::cout << "          (press 'q' then Enter or Ctrl+C to exit)\n";
             std::cout << "                        Thanks for using this tool\n";
             std::cout << "                                        By " << Colors::LIGHT_BLUE << "PHForge" << Colors::RESET << "\n";
 
             // Update progress bar every second
-            const int waitTime = 60;
-            const int progressBarLine = 10; // Line where progress bar appears
-            const int progressBarColumn = 5; // Column where progress bar starts
+            const int waitTime = 60; // Total wait time in seconds
+            const int progressBarLine = 10; // Line where progress bar will be displayed 
+            const int progressBarColumn = 0; // Column where progress bar will be displayed
             for (int i = 0; i < waitTime && !shouldExit; ++i) {
                 printProgressBar(i, waitTime, 20, progressBarLine, progressBarColumn);
                 std::this_thread::sleep_for(std::chrono::seconds(1));
             }
             if (!shouldExit) {
-                printProgressBar(waitTime, waitTime, 20, progressBarLine, progressBarColumn); // Final update
+                printProgressBar(waitTime, waitTime, 20, progressBarLine, progressBarColumn); // Print final progress bar state
             }
     }
 
