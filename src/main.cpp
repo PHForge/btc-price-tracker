@@ -5,7 +5,7 @@
  *
  * Dev with passion by: PHForge
  * License: MIT License
- * Version: 0.0.9
+ * Version: 0.0.10
  */
 
 #include <httplib.h> // For HTTP requests
@@ -265,6 +265,6 @@ int main() {
         exitThread.join();
     }
     std::cout << Colors::CLEAR_SCREEN << std::flush;
-    std::cout << Colors::CYAN << "Exiting Bitcoin Price Tracker. Thank you for using this tool!" << Colors::RESET << "\n";
+    std::cout << Colors::CYAN << "Exiting Bitcoin Price Tracker. Thank you for using this tool!" << Colors::RESET << "\n"; // Display exit message but may not be seen...
     return 0;
 }
