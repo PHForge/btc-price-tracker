@@ -115,6 +115,7 @@ btc-price-tracker/
 ├── src/                        // Source code
 │   ├── main.cpp                // Main application (fetches and displays Bitcoin price)
 ├── docs/						// Additional files
+│   ├── CHANGELOG.md			// Change history
 │   └── USER_GUIDE.md			// User documentation
 ├── LICENSE                     // MIT License file
 ├── CMakeLists.txt              // CMake build configuration for cross-platform builds
