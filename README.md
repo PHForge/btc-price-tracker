@@ -2,21 +2,23 @@
 
 A real-time Bitcoin (BTC) price tracker, fetching live USD prices from the CoinGecko API via HTTPS. This project uses modern C++ programming, HTTP client integration, JSON parsing, and cross-platform build configuration using CMake.
 
-![Language](https://img.shields.io/badge/language-C++-blue.svg) ![License](https://img.shields.io/badge/license-MIT-darkblue.svg) ![SoftVersion](https://img.shields.io/badge/SoftVersion-0.0.8-black)
+![Language](https://img.shields.io/badge/language-C++-blue.svg) ![License](https://img.shields.io/badge/license-MIT-darkblue.svg) ![SoftVersion](https://img.shields.io/badge/SoftVersion-0.1-Green)
 
 *Example output:*
 ```cpp
 ==================================================
               Bitcoin Price Tracker
 ==================================================
-Bitcoin Price:           $107643.00
-Last Updated:            06/29/2025 10:44 AM
+Bitcoin Price:           $108013.00
+Last Updated:            07/05/2025 10:59 AM
 ==================================================
 
 ==================================================
 Next update in 60 seconds...
+[█-------------------] 6.7% (56s remaining)
 
 
+          (press 'q' then Enter or Ctrl+C to exit)
                         Thanks for using this tool
                                         By PHForge
 ```
@@ -34,6 +36,8 @@ Next update in 60 seconds...
 - Centralized formatted output for consistent display using a generic function.
 - Caches formatted timestamps to avoid redundant computations.
 - Organizes ANSI color codes in a namespace for better code structure.
+- Supports clean program exit with 'q' (followed by Enter) or Ctrl+C.
+- Displays an ASCII progress bar during the 60-second wait period, showing progress and time remaining.
 - Cross-platform build system using CMake, compatible with Windows, Linux, and macOS.
 
 <br>
@@ -51,7 +55,7 @@ The following components are required to build, run, or contribute to this proje
 | **IDE/Editor**     | VS Code (recommended) or any C++-compatible IDE/terminal | Configured with `tasks.json` and `launch.json` for compilation and debugging |
 | **Debugger**       | GDB (via MSYS2 UCRT64)                   | For debugging in VS Code                   |
 | **Version Control**| Git                                      | Required to clone the repository           |
-| **OS**             | Windows (tested with MSYS2 UCRT64); Linux/macOS (with adjustments) | CMake ensures cross-platform compatibility; UTF-8 support required for ANSI colors |
+| **OS**             | Windows (tested with MSYS2 UCRT64); Linux/macOS (with adjustments) | CMake ensures cross-platform compatibility; UTF-8 support required for ANSI colors and progress bar |
 
 > [!TIP]
 > For an optimal setup on Windows, install [MSYS2 UCRT64](https://www.msys2.org/) and use the following command to install dependencies:
@@ -97,6 +101,9 @@ The following components are required to build, run, or contribute to this proje
 	- Windows: `./btc-price-tracker.exe`
 	- Linux: `./btc-price-tracker`
 
+> [!NOTE]
+> To exit the program, press 'q' followed by Enter or use Ctrl+C. The progress bar updates every second to indicate the time remaining until the next price fetch.
+
 <br>
 
 ## Project Structure 🗂️
@@ -107,10 +114,26 @@ btc-price-tracker/
 │   ├── json.hpp                // JSON parsing library (nlohmann/json): https://github.com/nlohmann/json
 ├── src/                        // Source code
 │   ├── main.cpp                // Main application (fetches and displays Bitcoin price)
+├── docs/						// Additional files
+│   └── USER_GUIDE.md			// User documentation
 ├── LICENSE                     // MIT License file
 ├── CMakeLists.txt              // CMake build configuration for cross-platform builds
 └── README.md                   // Project documentation
 ```
+
+<br>
+
+## Contributing 🤝
+
+Contributions are welcome! To contribute:
+
+- Fork the repository.
+- Create a new branch (`git checkout -b feature/your-feature`).
+- Make your changes and commit them (`git commit -m "Add your feature"`).
+- Push to the branch (`git push origin feature/your-feature`).
+- Open a pull request on GitHub.
+
+Please ensure your code follows the project's coding style and includes appropriate documentation.
 
 <br>
 
